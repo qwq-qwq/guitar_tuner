@@ -63,7 +63,7 @@ pipeline {
         stage('Build') {
             steps {
                 nodejs(nodeJSInstallationName: "NodeJS ${NODE_VERSION}") {
-                    sh 'vite build'
+                    sh 'npm run build'
                 }
             }
         }
