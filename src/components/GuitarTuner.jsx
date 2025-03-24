@@ -198,7 +198,7 @@ const GuitarTuner = () => {
 
             // Only proceed if the sound is loud enough
             if (rms < 0.005) {
-                setDebugInfo(`Слишком тихо... (${rms.toFixed(4)})`)
+                setDebugInfo(`Too quiet... (${rms.toFixed(4)})`)
                 animationRef.current = requestAnimationFrame(detectPitch)
                 return
             }
@@ -219,23 +219,23 @@ const GuitarTuner = () => {
 
                 if (Math.abs(centDifference) < 10) {
                     setDetectionStatus('in-tune')
-                    setDebugInfo(`В тон! (${centDifference.toFixed(2)} центов)`)
+                    setDebugInfo(`In tune! (${centDifference.toFixed(2)} cents)`)
                 } else {
                     setDetectionStatus('detecting')
                     setDebugInfo(
-                        `Частота: ${detectedPitch.toFixed(2)} Гц | ` +
-                        `Разница: ${centDifference.toFixed(2)} центов`,
+                        `Frequency: ${detectedPitch.toFixed(2)} Hz | ` +
+                        `Difference: ${centDifference.toFixed(2)} cents`,
                     )
                 }
             } else {
-                setDebugInfo(`Не удалось определить частоту | Громкость: ${rms.toFixed(4)}`)
+                setDebugInfo(`Unable to determine frequency | Volume: ${rms.toFixed(4)}`)
             }
 
             animationRef.current = requestAnimationFrame(detectPitch)
         } catch (error) {
             console.error('Error in detectPitch:', error)
-            setDebugInfo(`Ошибка при анализе: ${error.message || error}`)
-            setErrorMessage(`Ошибка при анализе звука: ${error.message || error}`)
+            setDebugInfo(`Error in analysis: ${error.message || error}`)
+            setErrorMessage(`Error analyzing sound: ${error.message || error}`)
             stopListening()
         }
     }
@@ -282,8 +282,8 @@ const GuitarTuner = () => {
     const getTuningDirection = () => {
         const difference = getPitchDifference()
 
-        if (Math.abs(difference) < 2) return 'в тон'
-        return difference > 0 ? 'понизить' : 'повысить'
+        if (Math.abs(difference) < 2) return 'in tune'
+        return difference > 0 ? 'lower' : 'raise'
     }
 
     // Calculate percentage for indicator
@@ -303,7 +303,7 @@ const GuitarTuner = () => {
         <div className="flex flex-col items-center p-6 bg-gray-50 rounded-lg shadow w-full max-w-md mx-auto">
             <div className="flex items-center justify-center mb-6">
                 <Music className="text-blue-500 mr-2" />
-                <h1 className="text-2xl font-bold text-gray-600">Гитарный Тюнер</h1>
+                <h1 className="text-2xl font-bold text-gray-600">Guitar Tuner</h1>
             </div>
 
             {errorMessage && (
@@ -317,10 +317,10 @@ const GuitarTuner = () => {
                     {STANDARD_GUITAR_TUNING.map((string, index) => (
                         <button
                             key={index}
-                            className={`p-3 rounded ${
+                            className={`p-3 rounded transition-colors duration-200 ${
                                 selectedString === index
                                     ? 'bg-blue-500 text-white'
-                                    : 'bg-gray-200 text-gray-600'
+                                    : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                             }`}
                             onClick={() => setSelectedString(index)}
                         >
@@ -330,13 +330,13 @@ const GuitarTuner = () => {
                 </div>
             </div>
 
-            <div className="w-full mb-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="w-full mb-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100 min-h-[250px]">
                 <div className="text-center mb-4">
-                    <span className="text-lg font-semibold">
-                        Струна: {STANDARD_GUITAR_TUNING[selectedString].note} (
+                    <span className="text-lg font-semibold text-gray-600">
+                        String: {STANDARD_GUITAR_TUNING[selectedString].note} (
                         {STANDARD_GUITAR_TUNING[selectedString]
                             .frequency
-                            .toFixed(2)} Гц
+                            .toFixed(2)} Hz
                         )
                     </span>
                 </div>
@@ -344,40 +344,66 @@ const GuitarTuner = () => {
                 {pitch > 0 && (
                     <div className="text-center mb-4">
                         <span className="text-xl font-medium">
-                            {pitch.toFixed(2)} Гц
+                            {pitch.toFixed(2)} Hz
                         </span>
-                        <p className="text-sm text-gray-600 mt-1">
-                            {getTuningDirection()}
-                        </p>
                     </div>
                 )}
 
                 {listening && pitch > 0 && (
-                    <div className="w-full bg-gray-200 rounded-full h-4 mt-4">
-                        <div
-                            className={`h-4 rounded-full ${
-                                detectionStatus === 'in-tune'
-                                    ? 'bg-green-500'
-                                    : 'bg-blue-500'
-                            }`}
-                            style={{ width: `${getTuningPercentage() * 100}%` }}
-                        ></div>
+                    <div className="relative w-full flex flex-col items-center space-y-8">
+                        {/* Frequency visualization */}
+                        <div className="relative w-full">
+                            {/* Scale background */}
+                            <div className="w-full h-3 bg-gray-100 rounded-full relative">
+                                {/* Target frequency marker */}
+                                <div className="absolute w-0.5 h-5 bg-green-500 left-1/2 top-1/2 -translate-y-1/2 transform -translate-x-1/2"></div>
+                                
+                                {/* Current frequency indicator */}
+                                <div 
+                                    className={`absolute w-8 h-8 -top-3 transition-all duration-300 flex items-center justify-center`}
+                                    style={{
+                                        left: `${getTuningPercentage() * 100}%`,
+                                        transform: 'translateX(-50%)'
+                                    }}
+                                >
+                                    <div className={`w-4 h-4 transform rotate-45 ${
+                                        detectionStatus === 'in-tune' 
+                                            ? 'bg-green-500' 
+                                            : 'bg-blue-500'
+                                    }`}></div>
+                                </div>
+                            </div>
+
+                            {/* Frequency labels */}
+                            <div className="absolute w-full flex justify-between px-2 mt-2">
+                                <span className="text-sm text-gray-500">
+                                    {Math.round(STANDARD_GUITAR_TUNING[selectedString].frequency * 0.8)} Hz
+                                </span>
+                                <span className="text-sm text-gray-500">
+                                    {Math.round(STANDARD_GUITAR_TUNING[selectedString].frequency)} Hz
+                                </span>
+                                <span className="text-sm text-gray-500">
+                                    {Math.round(STANDARD_GUITAR_TUNING[selectedString].frequency * 1.2)} Hz
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Debug info with better styling */}
+                        {debugInfo && (
+                            <div className="text-center mt-6">
+                                <p className="text-base text-gray-600">
+                                    {debugInfo}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 )}
 
                 {detectionStatus === 'in-tune' && (
                     <div className="flex justify-center mt-4">
-                        <div className="bg-green-100 text-green-800 px-4 py-2 rounded-full flex items-center">
+                        <div className="bg-green-100 text-green-800 px-4 py-2 rounded-full flex items-center animate-pulse">
                             <Check className="mr-1" /> В тон!
                         </div>
-                    </div>
-                )}
-
-                {debugInfo && (
-                    <div className="text-center mt-4">
-                        <p className="text-sm text-gray-500">
-                            {/* {debugInfo} */}
-                        </p>
                     </div>
                 )}
             </div>
@@ -386,18 +412,18 @@ const GuitarTuner = () => {
                 {!listening ? (
                     <button
                         className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-full
-                        flex items-center justify-center shadow-md w-64"
+                        flex items-center justify-center shadow-md w-64 transition-colors duration-200"
                         onClick={startListening}
                     >
-                        <Volume2 className="mr-2" /> Начать настройку
+                        <Volume2 className="mr-2" /> Start tuning
                     </button>
                 ) : (
                     <button
                         className="bg-red-500 hover:bg-red-600 text-white px-8
-                        py-4 rounded-full flex items-center justify-center shadow-md w-64"
+                        py-4 rounded-full flex items-center justify-center shadow-md w-64 transition-colors duration-200"
                         onClick={stopListening}
                     >
-                        <X className="mr-2" /> Остановить
+                        <X className="mr-2" /> Stop tuning
                     </button>
                 )}
             </div>
