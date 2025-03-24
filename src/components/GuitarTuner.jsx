@@ -330,20 +330,19 @@ const GuitarTuner = () => {
                 </div>
             </div>
 
-            <div className="w-full mb-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100 min-h-[250px]">
+            <div className="w-full mb-6 bg-white p-6 rounded-lg shadow-sm border border-gray-100 min-h-[240px]">
                 <div className="text-center mb-4">
                     <span className="text-lg font-semibold text-gray-600">
                         String: {STANDARD_GUITAR_TUNING[selectedString].note} (
                         {STANDARD_GUITAR_TUNING[selectedString]
                             .frequency
-                            .toFixed(2)} Hz
-                        )
+                            .toFixed(2)} Hz)
                     </span>
                 </div>
 
                 {pitch > 0 && (
                     <div className="text-center mb-4">
-                        <span className="text-xl font-medium">
+                        <span className="text-xl font-medium text-gray-600">
                             {pitch.toFixed(2)} Hz
                         </span>
                     </div>
@@ -392,7 +391,7 @@ const GuitarTuner = () => {
                         {debugInfo && (
                             <div className="text-center mt-6">
                                 <p className="text-base text-gray-600">
-                                    {debugInfo}
+                                    {/* {debugInfo} */}
                                 </p>
                             </div>
                         )}
@@ -402,7 +401,7 @@ const GuitarTuner = () => {
                 {detectionStatus === 'in-tune' && (
                     <div className="flex justify-center mt-4">
                         <div className="bg-green-100 text-green-800 px-4 py-2 rounded-full flex items-center animate-pulse">
-                            <Check className="mr-1" /> В тон!
+                            <Check className="mr-1" /> In tune!
                         </div>
                     </div>
                 )}
