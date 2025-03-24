@@ -1,10 +1,10 @@
-import js from '@eslint/js';
-import globals from 'globals';
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
-import react from 'eslint-plugin-react';
-import jsxA11y from 'eslint-plugin-jsx-a11y';
-import tsPlugin from '@typescript-eslint/eslint-plugin';
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import react from 'eslint-plugin-react'
+import jsxA11y from 'eslint-plugin-jsx-a11y'
+import tsPlugin from '@typescript-eslint/eslint-plugin'
 
 export default [
     { ignores: ['dist'] },
@@ -49,7 +49,7 @@ export default [
             'no-trailing-spaces': 'error',
             'eol-last': ['error', 'always'],
             'comma-dangle': ['error', 'always-multiline'],
-            'semi': ['error', 'always'],
+            'semi': ['error', 'never'],
             'quotes': ['error', 'single'],
             'jsx-quotes': ['error', 'prefer-double'],
             'object-curly-spacing': ['error', 'always'],
@@ -70,4 +70,4 @@ export default [
             'max-len': ['error', { 'code': 120 }],
         },
     },
-];
+]
