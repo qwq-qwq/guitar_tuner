@@ -181,28 +181,32 @@ const GuitarTuner = () => {
             const buffer = new Float32Array(analyser.fftSize)
             analyser.getFloatTimeDomainData(buffer)
 
-      // Calculate RMS to check if there's significant sound
-      let rms = 0
-      for (let i = 0; i < buffer.length; i++) {
-        rms += buffer[i] * buffer[i]
-      }
-      rms = Math.sqrt(rms / buffer.length)
+            // Calculate RMS to check if there's significant sound
+            let rms = 0
+            for (let i = 0; i < buffer.length; i++) {
+                rms += buffer[i] * buffer[i]
+            }
+            rms = Math.sqrt(rms / buffer.length)
 
-      // Only proceed if the sound is loud enough
-      if (rms < 0.005) {
-        setDebugInfo(`Слишком тихо... (${rms.toFixed(4)})`)
-        animationRef.current = requestAnimationFrame(detectPitch)
-        return
-      }
+            // Only proceed if the sound is loud enough
+            if (rms < 0.005) {
+                setDebugInfo(`Слишком тихо... (${rms.toFixed(4)})`)
+                animationRef.current = requestAnimationFrame(detectPitch)
+                return
+            }
 
             const sampleRate = audioContextRef.current.sampleRate
-      const detectedPitch = findPitch(buffer, sampleRate)
+            const detectedPitch = findPitch(buffer, sampleRate)
 
             if (detectedPitch !== -1) {
                 setPitch(detectedPitch)
+                
+                // Автоопределение струны
+                const closestStringIndex = findClosestString(detectedPitch)
+                setSelectedString(closestStringIndex)
 
                 // Check how close we are to the target
-                const targetFrequency = STANDARD_GUITAR_TUNING[selectedString].frequency
+                const targetFrequency = STANDARD_GUITAR_TUNING[closestStringIndex].frequency
                 const centDifference = 1200 * Math.log2(detectedPitch / targetFrequency)
 
                 if (Math.abs(centDifference) < 10) {
@@ -210,10 +214,10 @@ const GuitarTuner = () => {
                     setDebugInfo(`В тон! (${centDifference.toFixed(2)} центов)`)
                 } else {
                     setDetectionStatus('detecting')
-          setDebugInfo(`Частота: ${detectedPitch.toFixed(2)} Гц | Разница: ${centDifference.toFixed(2)} центов`)
+                    setDebugInfo(`Частота: ${detectedPitch.toFixed(2)} Гц | Разница: ${centDifference.toFixed(2)} центов`)
                 }
             } else {
-        setDebugInfo(`Не удалось определить частоту | Громкость: ${rms.toFixed(4)}`)
+                setDebugInfo(`Не удалось определить частоту | Громкость: ${rms.toFixed(4)}`)
             }
 
             animationRef.current = requestAnimationFrame(detectPitch)
@@ -243,6 +247,24 @@ const GuitarTuner = () => {
 
         const targetFrequency = STANDARD_GUITAR_TUNING[selectedString].frequency
         return pitch - targetFrequency
+    }
+
+    // Find the closest string to the detected frequency
+    const findClosestString = (frequency) => {
+        if (frequency <= 0) return selectedString
+
+        let closestIndex = 0
+        let minDifference = Infinity
+
+        STANDARD_GUITAR_TUNING.forEach((string, index) => {
+            const difference = Math.abs(frequency - string.frequency)
+            if (difference < minDifference) {
+                minDifference = difference
+                closestIndex = index
+            }
+        })
+
+        return closestIndex
     }
 
     // Get arrow for displaying tuning direction
