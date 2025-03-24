@@ -270,7 +270,7 @@ const GuitarTuner = () => {
         <div className="flex flex-col items-center p-6 bg-gray-50 rounded-lg shadow w-full max-w-md mx-auto">
             <div className="flex items-center justify-center mb-6">
                 <Music className="text-blue-500 mr-2" />
-                <h1 className="text-2xl font-bold">Гитарный Тюнер</h1>
+                <h1 className="text-2xl font-bold text-stone-500">Гитарный Тюнер</h1>
             </div>
 
             {errorMessage && (
